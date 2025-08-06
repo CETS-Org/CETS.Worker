@@ -1,0 +1,150 @@
+#########################
+# Build and Binary Files
+#########################
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.dll
+*.exe
+*.pdb
+*.dll.config
+*.cache
+*.log
+*.tmp
+
+######################
+# Visual Studio Files
+######################
+.vs/
+*.user
+*.suo
+*.sln.docstates
+*.userosscache
+*.VC.db
+*.VC.VC.opendb
+*.dbmdl
+*.dbproj.schemaview
+*.vssscc
+*.vspscc
+
+##################
+# VS Code / Rider
+##################
+.vscode/
+.idea/
+*.sln.iml
+
+###########################
+# Test / Code Coverage / CI
+###########################
+TestResults/
+*.coverage
+*.coveragexml
+*.codecoverage
+coverage*.json
+coverage*.xml
+coverage*.info
+*.ncrunch*
+*.dotCover
+.axoCover/
+
+##########################
+# NuGet / Packages / Tools
+##########################
+*.nupkg
+*.snupkg
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+NuGet.exe
+
+######################
+# ASP.NET / Publishing
+######################
+*.Publish.xml
+*.pubxml
+*.publishproj
+*.azurePubxml
+publish/
+wwwroot/
+artifacts/
+ScaffoldingReadMe.txt
+
+####################
+# User Secrets / Env
+####################
+.env
+*.Development.json
+
+###################
+# SQL / Database
+###################
+*.mdf
+*.ldf
+*.ndf
+*.sqlite
+
+#################
+# Frontend Tools
+#################
+node_modules/
+bower_components/
+*.js.map
+
+########################
+# ReSharper / JetBrains
+########################
+_ReSharper*/
+*.DotSettings.user
+*.resharper
+
+################
+# OS Artifacts
+################
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+##########################
+# Archive / Installer Files
+##########################
+*.zip
+*.tar
+*.gz
+*.rar
+*.7z
+*.msi
+*.msix
+*.msm
+*.msp
+
+#####################
+# Temporary / Backup
+#####################
+~$*
+*~
+*.bak
+*.old
+*.tmp
+
+#####################
+# Docker / Terraform
+#####################
+.docker/
+docker-compose.override.yml
+*.tfstate
+.terraform/
+
+#################
+# Others (optional)
+#################
+*.plg
+*.aps
+*.tss
+*.psess
+*.vspx
+*.vsmdi
