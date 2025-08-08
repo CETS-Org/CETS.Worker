@@ -1,0 +1,30 @@
+name: .NET CI
+
+on:
+  push:
+    branches: [ develop, staging, main ]
+    paths: [ '**/*.sln', '**/*.csproj', '**/*.cs', '.github/workflows/dotnet-ci.yml' ]
+  pull_request:
+    branches: [ develop, staging, main ]
+    paths: [ '**/*.sln', '**/*.csproj', '**/*.cs' ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build (Release)
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
