@@ -1,4 +1,4 @@
-using CETS.Worker.Consumers;
+using CETS.Worker.Consumers.Message;
 using MassTransit;
 using Services.Implementations;
 using Services.Interfaces;
@@ -18,7 +18,7 @@ namespace CETS.Worker
 
             builder.Services.AddMassTransit(x =>
             {
-                x.AddConsumer<MessageConsumer>();
+                x.AddConsumer<CreateMessageConsumer>();
                 x.UsingRabbitMq((context, cfg) =>
                 {
                     cfg.Host(

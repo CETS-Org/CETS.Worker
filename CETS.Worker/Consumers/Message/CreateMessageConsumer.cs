@@ -1,4 +1,5 @@
 ﻿using DTOs;
+using DTOs.Message.Requests;
 using MassTransit;
 using Services.Interfaces;
 using System;
@@ -8,23 +9,23 @@ using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CETS.Worker.Consumers
+namespace CETS.Worker.Consumers.Message
 {
-    public class MessageConsumer : IConsumer<Message>
+    public class CreateMessageConsumer : IConsumer<CreateMessageRequest>
     {
         private readonly IMessageService _messageService;
-        private readonly ILogger<MessageConsumer> _logger;
-        public MessageConsumer(IMessageService messageService, ILogger<MessageConsumer> logger)
+        private readonly ILogger<CreateMessageConsumer> _logger;
+        public CreateMessageConsumer(IMessageService messageService, ILogger<CreateMessageConsumer> logger)
         {
             _messageService = messageService;
             _logger = logger;
         }
 
-        public async Task Consume(ConsumeContext<Message> context)
+        public async Task Consume(ConsumeContext<CreateMessageRequest> context)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            Message message = context.Message;
+            CreateMessageRequest message = context.Message;
 
             _logger.LogInformation($"Received message: {message.message}");
             await _messageService.SendMessageAsync(message);
