@@ -16,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\CETS.Core\Application\Application.csproj" />
     <ProjectReference Include="..\..\CETS.Core\DTOs\DTOs.csproj" />
-    <ProjectReference Include="..\..\CETS.Core\Services\Services.csproj" />
   </ItemGroup>
 </Project>

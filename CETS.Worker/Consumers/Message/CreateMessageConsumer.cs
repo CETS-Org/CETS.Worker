@@ -1,7 +1,7 @@
-﻿using DTOs;
+﻿using Application.Implementations;
+using DTOs;
 using DTOs.Message.Requests;
 using MassTransit;
-using Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

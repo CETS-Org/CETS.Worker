@@ -1,7 +1,6 @@
+using Application.Implementations;
 using CETS.Worker.Consumers.Message;
 using MassTransit;
-using Services.Implementations;
-using Services.Interfaces;
 
 namespace CETS.Worker
 {
