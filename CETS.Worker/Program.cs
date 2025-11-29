@@ -1,5 +1,4 @@
 using Application.Implementations;
-using CETS.Worker.Consumers.Message;
 using Application.Implementations.COM;
 using Application.Interfaces;
 using Application.Interfaces.COM;
@@ -7,7 +6,15 @@ using CETS.Worker.Services.Implementations;
 using CETS.Worker.Services.Interfaces;
 using CETS.Worker.Workers;
 using Domain.Data;
+using Domain.Interfaces;
+using Domain.Interfaces.ACAD;
 using Domain.Interfaces.COM;
+using Domain.Interfaces.CORE;
+using Domain.Interfaces.IDN;
+using Infrastructure.Implementations.Repositories;
+using Infrastructure.Implementations.Repositories.ACAD;
+using Infrastructure.Implementations.Repositories.CORE;
+using Infrastructure.Implementations.Repositories.IDN;
 using Infrastructure.Implementations.Common.Mongo;
 using Infrastructure.Implementations.Repositories.COM;
 using Infrastructure.Implementations.Common.Notifications;
@@ -28,10 +35,13 @@ namespace CETS.Worker
             builder.Services.AddHostedService<Worker>();
             builder.Services.AddHostedService<PaymentReminderWorker>();
             Console.WriteLine("📅 Payment Reminder Worker scheduled at 8:00 AM daily");
+            builder.Services.AddHostedService<DropoutProcessingWorker>();
+            Console.WriteLine("🎓 Dropout Processing Worker scheduled at 9:00 AM daily");
             
             // Register Application Services
             builder.Services.AddScoped<Application.Interfaces.IMessageService, Application.Implementations.MessageService>();
             builder.Services.AddScoped<IPaymentReminderService, PaymentReminderService>();
+            builder.Services.AddScoped<IDropoutProcessingService, DropoutProcessingService>();
             builder.Services.AddScoped<ICurrentUserService, WorkerCurrentUserService>();
             
             // Register MongoDB and Notification Service
@@ -70,24 +80,21 @@ namespace CETS.Worker
             builder.Services.AddScoped<ICOM_NotificationRepository, COM_NotificationRepository>();
             builder.Services.AddSingleton<INotificationEventPublisher, RedisNotificationEventPublisher>();
 
+            // Register Repositories
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+            builder.Services.AddScoped<IACAD_AcademicRequestRepository, ACAD_AcademicRequestRepository>();
+            builder.Services.AddScoped<ICORE_LookUpRepository, CORE_LookUpRepository>();
+            builder.Services.AddScoped<IIDN_AccountRepository, IDN_AccountRepository>();
+
             // Register AutoMapper
             builder.Services.AddAutoMapper(typeof(Application.Mappers.CORE.CORE_LookUpProfile));
 
             // Register DbContext
-            builder.Services.AddDbContext<AppDbContext>((serviceProvider, options) =>
-            {
-                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-                
-                if (string.IsNullOrWhiteSpace(connectionString))
-                {
-                    throw new InvalidOperationException(
-                        "Connection string 'DefaultConnection' is not configured. " +
-                        "Please check appsettings.json or appsettings.Development.json");
-                }
-                
-                Console.WriteLine($"🔌 Database Connection String: {connectionString.Replace("pwd=123", "pwd=***")}");
-                options.UseSqlServer(connectionString);
-            });
+
+            builder.Services.AddDbContext<AppDbContext>(opts =>
+                    opts.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerDb"))
+                     .EnableSensitiveDataLogging()
+                .LogTo(Console.WriteLine, LogLevel.Information));
 
 
             var host = builder.Build();
