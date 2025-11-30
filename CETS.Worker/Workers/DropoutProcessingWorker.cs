@@ -19,9 +19,6 @@ namespace CETS.Worker.Workers
         private readonly ILogger<DropoutProcessingWorker> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        // TESTING MODE: Run every 30 seconds (change back to TimeSpan(9, 0, 0) for production)
-        private readonly TimeSpan _runTime = new TimeSpan(0, 0, 10); // 8:00 AM
-
         public DropoutProcessingWorker(
             ILogger<DropoutProcessingWorker> logger,
             IServiceScopeFactory serviceScopeFactory)
@@ -32,17 +29,18 @@ namespace CETS.Worker.Workers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("🎓 Dropout Processing Worker is starting in TESTING MODE (15 second intervals).");
+            _logger.LogInformation("🎓 Dropout Processing Worker is starting. Scheduled to run daily at 00:00 AM.");
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
+                    var delay = CalculateDelayUntilMidnight();
                     _logger.LogInformation(
-                        $"⏰ Next dropout processing check in {_runTime.TotalSeconds} seconds at {DateTime.Now.Add(_runTime):HH:mm:ss}");
+                        $"⏰ Next dropout processing check at {DateTime.Now.Add(delay):yyyy-MM-dd HH:mm:ss} (in {delay.TotalHours:F1} hours)");
 
-                    // Wait for the interval
-                    await Task.Delay(_runTime, stoppingToken);
+                    // Wait until midnight
+                    await Task.Delay(delay, stoppingToken);
 
                     // Run the check
                     if (!stoppingToken.IsCancellationRequested)
@@ -63,6 +61,14 @@ namespace CETS.Worker.Workers
                     await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
                 }
             }
+        }
+
+        private TimeSpan CalculateDelayUntilMidnight()
+        {
+            var now = DateTime.Now;
+            var nextMidnight = now.Date.AddDays(1); // Next midnight (00:00)
+            var delay = nextMidnight - now;
+            return delay;
         }
 
         private async Task CheckAndProcessDropoutsAsync()

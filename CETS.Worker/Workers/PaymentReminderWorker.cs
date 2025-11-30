@@ -19,8 +19,8 @@ namespace CETS.Worker.Workers
         private readonly ILogger<PaymentReminderWorker> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        // Thời gian chạy: mỗi ngày lúc 8h sáng (có thể config trong appsettings.json)
-        private readonly TimeSpan _runTime = new TimeSpan(8, 0, 0); // 8:00 AM
+        // Thời gian chạy: mỗi ngày lúc 0h sáng (có thể config trong appsettings.json)
+        private readonly TimeSpan _runTime = new TimeSpan(0, 0, 0); // ) 0:00 AM
 
         public PaymentReminderWorker(
             ILogger<PaymentReminderWorker> logger, 

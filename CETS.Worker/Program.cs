@@ -34,14 +34,25 @@ namespace CETS.Worker
             // Register Background Services / Workers
             builder.Services.AddHostedService<Worker>();
             builder.Services.AddHostedService<PaymentReminderWorker>();
-            Console.WriteLine("📅 Payment Reminder Worker scheduled at 8:00 AM daily");
+            Console.WriteLine("📅 Payment Reminder Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<DropoutProcessingWorker>();
-            Console.WriteLine("🎓 Dropout Processing Worker scheduled at 9:00 AM daily");
+            Console.WriteLine("🎓 Dropout Processing Worker scheduled at 00:00 AM (midnight) daily");
+            
+            // Suspension Workers
+            builder.Services.AddHostedService<ApplySuspensionWorker>();
+            Console.WriteLine("🔄 Apply Suspension Worker scheduled at 00:00 AM (midnight) daily");
+            builder.Services.AddHostedService<EndSuspensionWorker>();
+            Console.WriteLine("⏸️ End Suspension Worker scheduled at 00:00 AM (midnight) daily");
+            builder.Services.AddHostedService<ReturnReminderWorker>();
+            Console.WriteLine("🔔 Return Reminder Worker scheduled at 00:00 AM (midnight) daily");
+            builder.Services.AddHostedService<AutoDropoutWorker>();
+            Console.WriteLine("⚠️ Auto Dropout Worker scheduled at 00:00 AM (midnight) daily");
             
             // Register Application Services
             builder.Services.AddScoped<Application.Interfaces.IMessageService, Application.Implementations.MessageService>();
             builder.Services.AddScoped<IPaymentReminderService, PaymentReminderService>();
             builder.Services.AddScoped<IDropoutProcessingService, DropoutProcessingService>();
+            builder.Services.AddScoped<ISuspensionProcessingService, SuspensionProcessingService>();
             builder.Services.AddScoped<ICurrentUserService, WorkerCurrentUserService>();
             
             // Register MongoDB and Notification Service
@@ -85,6 +96,7 @@ namespace CETS.Worker
             builder.Services.AddScoped<IACAD_AcademicRequestRepository, ACAD_AcademicRequestRepository>();
             builder.Services.AddScoped<ICORE_LookUpRepository, CORE_LookUpRepository>();
             builder.Services.AddScoped<IIDN_AccountRepository, IDN_AccountRepository>();
+            builder.Services.AddScoped<IIDN_StudentRepository, IDN_StudentRepository>();
 
             // Register AutoMapper
             builder.Services.AddAutoMapper(typeof(Application.Mappers.CORE.CORE_LookUpProfile));
