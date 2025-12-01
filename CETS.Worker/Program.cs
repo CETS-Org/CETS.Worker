@@ -33,6 +33,8 @@ namespace CETS.Worker
             
             // Register Background Services / Workers
             builder.Services.AddHostedService<Worker>();
+            builder.Services.AddHostedService<AcademicRequestExpiryWorker>();
+            Console.WriteLine("📆 Academic Request Expiry Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<PaymentReminderWorker>();
             Console.WriteLine("📅 Payment Reminder Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<DropoutProcessingWorker>();
@@ -94,6 +96,7 @@ namespace CETS.Worker
             // Register Repositories
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IACAD_AcademicRequestRepository, ACAD_AcademicRequestRepository>();
+            builder.Services.AddScoped<IACAD_AcademicRequestHistoryRepository, ACAD_AcademicRequestHistoryRepository>();
             builder.Services.AddScoped<ICORE_LookUpRepository, CORE_LookUpRepository>();
             builder.Services.AddScoped<IIDN_AccountRepository, IDN_AccountRepository>();
             builder.Services.AddScoped<IIDN_StudentRepository, IDN_StudentRepository>();
