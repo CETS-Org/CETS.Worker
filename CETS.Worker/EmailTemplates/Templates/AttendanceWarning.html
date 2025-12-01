@@ -1,0 +1,181 @@
+﻿<!--<!DOCTYPE html>
+<html lang="en" style="font-family: Arial, sans-serif; margin: 0; padding: 0;">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance Warning</title>
+</head>
+
+<body style="background-color: #f6f6f6; padding: 20px;">
+
+    <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+            <td align="center">
+
+                <table width="600" cellpadding="0" cellspacing="0"
+                       style="background: #ffffff; padding: 30px; border-radius: 10px;">-->
+<!-- Header -->
+<!--<tr>
+    <td style="text-align: center; padding-bottom: 20px;">
+        <h2 style="color: #d9534f; margin: 0;">
+            ⚠️ Attendance Warning
+        </h2>
+    </td>
+</tr>-->
+<!-- Greeting -->
+<!--<tr>
+    <td style="font-size: 16px; line-height: 1.6;">
+        <p>Dear <strong>{{StudentName}}</strong>,</p>
+
+        <p>
+            This is an automated reminder regarding your attendance in the class
+            <strong>{{ClassName}}</strong>.
+        </p>
+    </td>
+</tr>-->
+<!-- Info Box -->
+<!--<tr>
+    <td>
+        <table width="100%" cellpadding="10" cellspacing="0"
+               style="background: #f0f4ff; border-left: 4px solid #4285f4; margin-top: 10px; border-radius: 6px;">
+            <tr>
+                <td style="font-size: 15px; line-height: 1.6;">
+                    <p style="margin: 0;">
+                        You have been marked absent for:
+                    </p>
+                    <p style="margin: 8px 0 0 0; font-size: 18px; font-weight: bold;">
+                        {{AbsentCount}} / {{TotalSessions}} sessions
+                    </p>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>-->
+<!-- Threshold Message -->
+<!--<tr>
+    <td style="font-size: 16px; line-height: 1.6; padding-top: 20px;">
+        <p>
+            Based on the course policy, the maximum allowed absences for this class is
+            <strong>{{MaxAbsent}}</strong> sessions.
+            You are approaching this limit.
+        </p>
+
+        <p style="color: #d9534f; font-weight: bold;">
+            Continued absences may affect your academic progress or result in being unable to complete the course.
+        </p>
+    </td>
+</tr>-->
+<!-- Footer -->
+<!--<tr>
+                        <td style="font-size: 15px; line-height: 1.6; padding-top: 20px;">
+                            <p>
+                                If you believe there is an error or have any questions, please contact the support team.
+                            </p>
+
+                            <p style="margin-top: 25px;">
+                                Best regards,<br />
+                                <strong>CETS Academic Team</strong>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Attendance Warning</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background: #f5f7fa; margin: 0; padding: 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="padding: 30px 0;">
+        <tr>
+            <td align="center">
+
+                <table width="600" cellpadding="0" cellspacing="0"
+                       style="background: #ffffff; padding: 30px; border-radius: 12px;">
+
+                    <!-- HEADER -->
+                    <tr>
+                        <td align="center">
+                            <h2 style="color:#d9534f; margin: 0 0 20px 0;">⚠️ Attendance Warning</h2>
+                        </td>
+                    </tr>
+
+                    <!-- GREETING -->
+                    <tr>
+                        <td style="font-size: 15px; color:#444; line-height: 1.6;">
+                            <p>Hello <strong>{{StudentName}}</strong>,</p>
+
+                            <p>
+                                This is an automated reminder regarding your attendance for the course
+                                <strong>{{CourseName}}</strong>, class
+                                <strong>{{ClassName}}</strong>.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- INFO BOX -->
+                    <tr>
+                        <td>
+                            <table width="100%" cellpadding="12" cellspacing="0"
+                                   style="background: #eef4ff; border-left: 4px solid #2b6cb0;
+                                          border-radius: 8px; margin: 18px 0;">
+                                <tr>
+                                    <td style="font-size: 15px; color:#333; line-height: 1.5;">
+                                        <p style="margin: 0;">You have been marked absent:</p>
+                                        <p style="margin: 8px 0 0 0; font-size: 20px; font-weight: bold;">
+                                            {{AbsentCount}} / {{TotalSessions}} sessions
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- LIMIT MESSAGE -->
+                    <tr>
+                        <td style="font-size: 15px; color:#444; line-height: 1.6;">
+                            <p>
+                                The maximum allowed absences for this class is
+                                <strong>{{MaxAbsent}}</strong> sessions.
+                                You are getting close to this limit.
+                            </p>
+
+                            <p style="color:#d9534f; font-weight: bold;">
+                                Continued absences may impact your academic progress or result
+                                in being unable to complete the course.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="font-size: 14px; color:#666; padding-top: 20px; line-height: 1.6;">
+                            <p>
+                                If you believe this is a mistake or have any questions,
+                                please feel free to contact the support team.
+                            </p>
+
+                            <p style="text-align:center; padding-top: 25px; font-size: 13px; color:#999;">
+                                CETS Support Team
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
