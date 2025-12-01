@@ -18,6 +18,9 @@ using Infrastructure.Implementations.Repositories.IDN;
 using Infrastructure.Implementations.Common.Mongo;
 using Infrastructure.Implementations.Repositories.COM;
 using Infrastructure.Implementations.Common.Notifications;
+using Application.Interfaces.Common.Email;
+using Infrastructure.Implementations.Common.Email;
+using Infrastructure.Implementations.Common.Email.EmailTemplates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -30,7 +33,7 @@ namespace CETS.Worker
         public static void Main(string[] args)
         {
             var builder = Host.CreateApplicationBuilder(args);
-            
+
             // Register Background Services / Workers
             builder.Services.AddHostedService<Worker>();
             builder.Services.AddHostedService<AcademicRequestExpiryWorker>();
@@ -50,13 +53,20 @@ namespace CETS.Worker
             builder.Services.AddHostedService<AutoDropoutWorker>();
             Console.WriteLine("⚠️ Auto Dropout Worker scheduled at 00:00 AM (midnight) daily");
             
+            Console.WriteLine("🎓 Dropout Processing Worker scheduled at 9:00 AM daily");
+            builder.Services.AddMemoryCache();
+
             // Register Application Services
             builder.Services.AddScoped<Application.Interfaces.IMessageService, Application.Implementations.MessageService>();
             builder.Services.AddScoped<IPaymentReminderService, PaymentReminderService>();
             builder.Services.AddScoped<IDropoutProcessingService, DropoutProcessingService>();
             builder.Services.AddScoped<ISuspensionProcessingService, SuspensionProcessingService>();
+            builder.Services.AddScoped<IMailService, MailService>();
+            builder.Services.AddSingleton<IEmailTemplateBuilder, EmailTemplateBuilder>();
             builder.Services.AddScoped<ICurrentUserService, WorkerCurrentUserService>();
-            
+            builder.Services.AddScoped<IAttendanceWarningService, AttendanceWarningService>();
+            builder.Services.AddHostedService<AttendanceWarningWorker>();
+
             // Register MongoDB and Notification Service
             builder.Services.Configure<MongoNotificationOptions>(
                 builder.Configuration.GetSection(MongoNotificationOptions.SectionName));
@@ -110,7 +120,6 @@ namespace CETS.Worker
                     opts.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerDb"))
                      .EnableSensitiveDataLogging()
                 .LogTo(Console.WriteLine, LogLevel.Information));
-
 
             var host = builder.Build();
             host.Run();
