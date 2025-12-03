@@ -74,8 +74,10 @@ namespace CETS.Worker.Services.Implementations
                                     a.AttendanceStatus.Code == "Absent")
                         .CountAsync();
 
-                    if (absent > maxAbsent)
+                    var warningThreshold = (int)Math.Ceiling(totalSessions * 0.1);
+                    if (absent < warningThreshold)
                         continue;
+
 
                     if (absent >= maxAbsent - 2 && absent <= maxAbsent)
                     {
@@ -86,8 +88,8 @@ namespace CETS.Worker.Services.Implementations
 
                         var emailBody = _templateBuilder.BuildAttendanceWarningEmail(
                             stu.Account.FullName,
-                            enrollment.Course.CourseName,   
-                            className,                      
+                            enrollment.Course.CourseName,
+                            className,
                             absent,
                             totalSessions,
                             maxAbsent
