@@ -2,6 +2,7 @@ using Application.Implementations;
 using Application.Implementations.COM;
 using Application.Interfaces;
 using Application.Interfaces.COM;
+using Application.Interfaces.Common.Email;
 using CETS.Worker.Services.Implementations;
 using CETS.Worker.Services.Interfaces;
 using CETS.Worker.Workers;
@@ -18,6 +19,8 @@ using Infrastructure.Implementations.Repositories.IDN;
 using Infrastructure.Implementations.Common.Mongo;
 using Infrastructure.Implementations.Repositories.COM;
 using Infrastructure.Implementations.Common.Notifications;
+using Infrastructure.Implementations.Common.Email;
+using Infrastructure.Implementations.Common.Email.EmailTemplates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
@@ -56,6 +59,10 @@ namespace CETS.Worker
             builder.Services.AddScoped<IDropoutProcessingService, DropoutProcessingService>();
             builder.Services.AddScoped<ISuspensionProcessingService, SuspensionProcessingService>();
             builder.Services.AddScoped<ICurrentUserService, WorkerCurrentUserService>();
+            
+            // Register Email Services
+            builder.Services.AddScoped<IMailService, MailService>();
+            builder.Services.AddScoped<IEmailTemplateBuilder, EmailTemplateBuilder>();
             
             // Register MongoDB and Notification Service
             builder.Services.Configure<MongoNotificationOptions>(

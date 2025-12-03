@@ -134,7 +134,7 @@ namespace CETS.Worker.Services.Implementations
                 var student = await _studentRepo.GetByIdAsync(request.StudentID);
                 if (student != null)
                 {
-                    student.Account.AccountStatus = suspendedStudentStatus;
+                    student.Account.AccountStatusID = suspendedStudentStatus.Id;
                     _studentRepo.Update(student);
                 }
 
@@ -401,7 +401,7 @@ namespace CETS.Worker.Services.Implementations
                     var student = await _studentRepo.GetByIdAsync(request.StudentID);
                     if (student != null)
                     {
-                        student.Account.AccountStatus = droppedOutStudentStatus;
+                        student.Account.AccountStatusID = droppedOutStudentStatus.Id;
                         _studentRepo.Update(student);
                     }
                 }
