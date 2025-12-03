@@ -1,4 +1,6 @@
 using Application.Interfaces.COM;
+using Application.Interfaces.Common.Email;
+using CETS.Worker.Helpers;
 using CETS.Worker.Services.Interfaces;
 using DTOs.COM.COM_Notification.Requests;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +37,7 @@ namespace CETS.Worker.Workers
             {
                 try
                 {
-                    var delay = CalculateDelayUntilMidnight();
+                    var delay = WorkerTimeHelper.CalculateDelayUntilMidnight();
                     _logger.LogInformation(
                         $"⏰ Next suspension activation check at {DateTime.Now.Add(delay):yyyy-MM-dd HH:mm:ss} (in {delay.TotalHours:F1} hours)");
 
@@ -63,14 +65,6 @@ namespace CETS.Worker.Workers
             }
         }
 
-        private TimeSpan CalculateDelayUntilMidnight()
-        {
-            var now = DateTime.Now;
-            var nextMidnight = now.Date.AddDays(1); // Next midnight (00:00)
-            var delay = nextMidnight - now;
-            return delay;
-        }
-
         private async Task CheckAndApplySuspensionsAsync()
         {
             _logger.LogInformation("🔍 Starting suspension activation check at: {time}", DateTime.Now);
@@ -82,6 +76,12 @@ namespace CETS.Worker.Workers
 
                 var notificationService = scope.ServiceProvider
                     .GetRequiredService<ICOM_NotificationService>();
+
+                var mailService = scope.ServiceProvider
+                    .GetRequiredService<IMailService>();
+
+                var emailTemplateBuilder = scope.ServiceProvider
+                    .GetRequiredService<IEmailTemplateBuilder>();
 
                 try
                 {
@@ -127,6 +127,31 @@ namespace CETS.Worker.Workers
                             };
 
                             await notificationService.CreateAsync(notificationRequest);
+
+                            // Send email notification
+                            try
+                            {
+                                var emailBody = emailTemplateBuilder.BuildSuspensionActivatedEmail(
+                                    suspension.StudentName,
+                                    suspension.StartDate.ToString("MMMM dd, yyyy"),
+                                    suspension.EndDate.ToString("MMMM dd, yyyy"),
+                                    suspension.EndDate.AddDays(1).ToString("MMMM dd, yyyy"),
+                                    suspension.ReasonCategory ?? "Not specified"
+                                );
+
+                                await mailService.SendEmailAsync(
+                                    suspension.StudentEmail,
+                                    "🔄 Suspension Activated - CETS",
+                                    emailBody
+                                );
+
+                                _logger.LogInformation($"📧 Email sent to {suspension.StudentEmail}");
+                            }
+                            catch (Exception emailEx)
+                            {
+                                _logger.LogError(emailEx, $"Failed to send email to {suspension.StudentEmail}");
+                                // Don't fail the entire process if email fails
+                            }
 
                             _logger.LogInformation(
                                 $"✅ Successfully activated suspension for student {suspension.StudentName} (Request ID: {suspension.RequestId})");

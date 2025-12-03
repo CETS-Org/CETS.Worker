@@ -1,3 +1,4 @@
+using CETS.Worker.Helpers;
 using Domain.Constants;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -39,7 +40,7 @@ namespace CETS.Worker.Workers
             {
                 try
                 {
-                    var delay = CalculateDelayUntilMidnight();
+                    var delay = WorkerTimeHelper.CalculateDelayUntilMidnight();
                     _logger.LogInformation(
                         "⏰ Next academic request expiry check at {nextTime} (in {hours:F1} hours)",
                         DateTime.Now.Add(delay),
@@ -63,13 +64,6 @@ namespace CETS.Worker.Workers
                     await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
                 }
             }
-        }
-
-        private TimeSpan CalculateDelayUntilMidnight()
-        {
-            var now = DateTime.Now;
-            var nextMidnight = now.Date.AddDays(1); // Next midnight (00:00)
-            return nextMidnight - now;
         }
 
         private async Task ExpireAcademicRequestsAsync()
