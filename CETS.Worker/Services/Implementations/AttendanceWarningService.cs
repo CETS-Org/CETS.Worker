@@ -33,7 +33,7 @@ namespace CETS.Worker.Services.Implementations
                 .Include(e => e.EnrollmentStatus)
                 .Include(e => e.Student).ThenInclude(s => s.Account)
                 .Include(e => e.Course)
-                .Where(e => e.EnrollmentStatus.Code == "InProgress" &&
+                .Where(e => e.EnrollmentStatus.Code == "Enrolled" &&
                  e.ClassID != null)
                 .ToListAsync();
 
