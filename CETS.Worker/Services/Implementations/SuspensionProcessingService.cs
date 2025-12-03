@@ -19,6 +19,7 @@ namespace CETS.Worker.Services.Implementations
         private readonly AppDbContext _context;
         private readonly IACAD_AcademicRequestRepository _requestRepo;
         private readonly IIDN_StudentRepository _studentRepo;
+        private readonly IACAD_EnrollmentRepository _enrollmentRepo;
         private readonly ICORE_LookUpRepository _lookUpRepository;
         private readonly ILogger<SuspensionProcessingService> _logger;
         private readonly IConfiguration _configuration;
@@ -27,6 +28,7 @@ namespace CETS.Worker.Services.Implementations
             AppDbContext context,
             IACAD_AcademicRequestRepository requestRepo,
             IIDN_StudentRepository studentRepo,
+            IACAD_EnrollmentRepository enrollmentRepo,
             ICORE_LookUpRepository lookUpRepository,
             ILogger<SuspensionProcessingService> logger,
             IConfiguration configuration)
@@ -34,6 +36,7 @@ namespace CETS.Worker.Services.Implementations
             _context = context;
             _requestRepo = requestRepo;
             _studentRepo = studentRepo;
+            _enrollmentRepo = enrollmentRepo;
             _lookUpRepository = lookUpRepository;
             _logger = logger;
             _configuration = configuration;
@@ -110,7 +113,7 @@ namespace CETS.Worker.Services.Implementations
                     return;
                 }
 
-                // Get "Suspended" status
+                // Get "Suspended" status for academic request
                 var suspendedStatus = await _lookUpRepository.GetByCodeAsync(LookUpTypes.AcademicRequestStatus, SuspensionStatuses.Suspended);
                 if (suspendedStatus == null)
                 {
@@ -118,11 +121,11 @@ namespace CETS.Worker.Services.Implementations
                     return;
                 }
 
-                // Get "Suspended" student status
-                var suspendedStudentStatus = await _lookUpRepository.GetByCodeAsync(LookUpTypes.AccountStatus, "Suspended");
-                if (suspendedStudentStatus == null)
+                // Get "Suspended" enrollment status
+                var suspendedEnrollmentStatus = await _lookUpRepository.GetByCodeAsync(LookUpTypes.EnrollmentStatus, "Suspended");
+                if (suspendedEnrollmentStatus == null)
                 {
-                    _logger.LogError("Suspended student status not found in lookup data");
+                    _logger.LogError("Suspended enrollment status not found in lookup data");
                     return;
                 }
 
@@ -130,12 +133,25 @@ namespace CETS.Worker.Services.Implementations
                 request.AcademicRequestStatusID = suspendedStatus.Id;
                 request.ProcessedAt = DateTime.Now;
 
-                // Update student status to Suspended
-                var student = await _studentRepo.GetByIdAsync(request.StudentID);
-                if (student != null)
+                // Update enrollment status to Suspended
+                if (request.EnrollmentID.HasValue)
                 {
-                    student.Account.AccountStatusID = suspendedStudentStatus.Id;
-                    _studentRepo.Update(student);
+                    var enrollment = await _enrollmentRepo.GetByIdAsync(request.EnrollmentID.Value);
+                    if (enrollment != null)
+                    {
+                        enrollment.EnrollmentStatusID = suspendedEnrollmentStatus.Id;
+                        enrollment.UpdatedAt = DateTime.Now;
+                        _enrollmentRepo.Update(enrollment);
+                        _logger.LogInformation($"Updated enrollment {enrollment.Id} status to Suspended");
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Enrollment {request.EnrollmentID.Value} not found for request {requestId}");
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning($"Request {requestId} has no associated enrollment");
                 }
 
                 _requestRepo.Update(request);
@@ -380,7 +396,7 @@ namespace CETS.Worker.Services.Implementations
                     return;
                 }
 
-                // Get "AutoDroppedOut" status
+                // Get "AutoDroppedOut" status for academic request
                 var autoDroppedOutStatus = await _lookUpRepository.GetByCodeAsync(LookUpTypes.AcademicRequestStatus, SuspensionStatuses.AutoDroppedOut);
                 if (autoDroppedOutStatus == null)
                 {
@@ -388,22 +404,34 @@ namespace CETS.Worker.Services.Implementations
                     return;
                 }
 
-                // Get "DroppedOut" student status (optional based on policy)
-                var droppedOutStudentStatus = await _lookUpRepository.GetByCodeAsync(LookUpTypes.AccountStatus, "Dropout");
+                // Get "Dropped" enrollment status
+                var droppedOutEnrollmentStatus = await _lookUpRepository.GetByCodeAsync(LookUpTypes.EnrollmentStatus, "Dropped");
 
                 // Update request status to AutoDroppedOut
                 request.AcademicRequestStatusID = autoDroppedOutStatus.Id;
-                request.ProcessedAt = DateTime.Now;
 
-                // Optionally update student status to DroppedOut (based on policy)
-                if (droppedOutStudentStatus != null)
+                // Update enrollment status to Dropped and remove class assignment
+                if (droppedOutEnrollmentStatus != null && request.EnrollmentID.HasValue)
                 {
-                    var student = await _studentRepo.GetByIdAsync(request.StudentID);
-                    if (student != null)
+                    var enrollment = await _enrollmentRepo.GetByIdAsync(request.EnrollmentID.Value);
+                    if (enrollment != null)
                     {
-                        student.Account.AccountStatusID = droppedOutStudentStatus.Id;
-                        _studentRepo.Update(student);
+                        enrollment.EnrollmentStatusID = droppedOutEnrollmentStatus.Id;
+                        enrollment.ClassID = null; // Remove class assignment when dropped out
+                        _enrollmentRepo.Update(enrollment);
+                        _logger.LogInformation($"Updated enrollment {enrollment.Id} status to Dropped and removed class assignment");
                     }
+                    else
+                    {
+                        _logger.LogWarning($"Enrollment {request.EnrollmentID.Value} not found for request {requestId}");
+                    }
+                }
+                else
+                {
+                    if (!request.EnrollmentID.HasValue)
+                        _logger.LogWarning($"Request {requestId} has no associated enrollment");
+                    if (droppedOutEnrollmentStatus == null)
+                        _logger.LogWarning("Dropped enrollment status not found in lookup data");
                 }
 
                 _requestRepo.Update(request);

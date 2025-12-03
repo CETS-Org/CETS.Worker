@@ -104,6 +104,7 @@ namespace CETS.Worker
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             builder.Services.AddScoped<IACAD_AcademicRequestRepository, ACAD_AcademicRequestRepository>();
             builder.Services.AddScoped<IACAD_AcademicRequestHistoryRepository, ACAD_AcademicRequestHistoryRepository>();
+            builder.Services.AddScoped<IACAD_EnrollmentRepository, ACAD_EnrollmentRepository>();
             builder.Services.AddScoped<ICORE_LookUpRepository, CORE_LookUpRepository>();
             builder.Services.AddScoped<IIDN_AccountRepository, IDN_AccountRepository>();
             builder.Services.AddScoped<IIDN_StudentRepository, IDN_StudentRepository>();
