@@ -1,0 +1,109 @@
+name: .NET CI (CETS.Worker + external CETS.Core)
+
+on:
+  push:
+    branches: [ develop, staging, main ]
+    paths: [ '**/*.sln', '**/*.csproj', '**/*.cs', '.github/workflows/dotnet-ci.yml' ]
+  pull_request:
+    branches: [ develop, staging, main ]
+    paths: [ '**/*.sln', '**/*.csproj', '**/*.cs' ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dotnet-ci-worker-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: 1
+  CORE_REPO: CETS-Org/CETS.Core
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the Worker repo into `CETS.Worker`
+      - name: Checkout Worker repo (this repo)
+        uses: actions/checkout@v4
+        with:
+          path: CETS.Worker
+          fetch-depth: 0
+
+      # Display current branch info for debugging
+      - name: Display branch information
+        run: |
+          echo "Current CETS.Worker branch: ${{ github.ref_name }}"
+          echo "Attempting to checkout CETS.Core branch: ${{ github.ref_name }}"
+
+      # Checkout the core repo into `CETS.Core` using the same branch as current Worker repo.
+      # This ensures version compatibility between the projects.
+      - name: Checkout external CETS.Core repo (same branch)
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CORE_REPO }}
+          ref: ${{ github.ref_name }}
+          path: CETS.Core
+          token: ${{ secrets.GH_PAT }}
+        continue-on-error: true
+      
+      # Fallback: If the same branch doesn't exist in CETS.Core, checkout main
+      - name: Checkout external CETS.Core repo (fallback to main)
+        if: failure()
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.CORE_REPO }}
+          ref: main
+          path: CETS.Core
+          token: ${{ secrets.GH_PAT }}
+      
+      # Display which branch was actually checked out
+      - name: Display CETS.Core branch used
+        working-directory: CETS.Core
+        run: |
+          echo "CETS.Core checked out branch: $(git branch --show-current)"
+          echo "CETS.Core commit: $(git rev-parse HEAD)"
+
+      # Verify directory layout
+      - name: Verify directory layout
+        working-directory: ${{ github.workspace }}
+        run: |
+          echo "--- Workspace Layout (should show CETS.Worker and CETS.Core) ---"
+          ls -lR
+          echo "--- Verifying critical files exist in the correct locations ---"
+          test -f CETS.Worker/CETS.Worker.sln
+          test -f CETS.Core/DTOs/DTOs.csproj
+          test -f CETS.Core/Services/Services.csproj
+          test -f CETS.Core/Utils/Utils.csproj
+          echo "--- Layout appears correct ---"
+
+      - name: Setup .NET 8.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Cache NuGet packages
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/CETS.Worker/**/*.sln', '**/CETS.Worker/**/*.csproj', '**/CETS.Core/**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      # All commands run from the Worker directory
+      - name: Restore
+        working-directory: CETS.Worker
+        run: dotnet restore
+
+      - name: Build (Release)
+        working-directory: CETS.Worker
+        run: dotnet build --configuration Release --no-restore
+        env:
+          CI: true
+
+      - name: Test
+        working-directory: CETS.Worker
+        run: dotnet test --no-build --verbosity normal --configuration Release
