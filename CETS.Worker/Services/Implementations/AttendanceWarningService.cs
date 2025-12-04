@@ -20,6 +20,7 @@ namespace CETS.Worker.Services.Implementations
             AppDbContext context,
             IMailService mailService,
             IEmailTemplateBuilder templateBuilder,
+            IMemoryCache cache)
             IMemoryCache cache,
             ILogger<AttendanceWarningService> logger)
         {

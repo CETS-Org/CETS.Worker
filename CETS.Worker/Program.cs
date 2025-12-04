@@ -19,6 +19,7 @@ using Infrastructure.Implementations.Repositories.IDN;
 using Infrastructure.Implementations.Common.Mongo;
 using Infrastructure.Implementations.Repositories.COM;
 using Infrastructure.Implementations.Common.Notifications;
+using Application.Interfaces.Common.Email;
 using Infrastructure.Implementations.Common.Email;
 using Infrastructure.Implementations.Common.Email.EmailTemplates;
 using Microsoft.EntityFrameworkCore;
@@ -61,6 +62,7 @@ namespace CETS.Worker
             builder.Services.AddScoped<IPaymentReminderService, PaymentReminderService>();
             builder.Services.AddScoped<IDropoutProcessingService, DropoutProcessingService>();
             builder.Services.AddScoped<ISuspensionProcessingService, SuspensionProcessingService>();
+            builder.Services.AddScoped<IMailService, MailService>();
             builder.Services.AddSingleton<IEmailTemplateBuilder, EmailTemplateBuilder>();
             builder.Services.AddScoped<ICurrentUserService, WorkerCurrentUserService>();
             builder.Services.AddScoped<IAttendanceWarningService, AttendanceWarningService>();
