@@ -9,17 +9,11 @@
   </PropertyGroup>
 
 
-
-  <ItemGroup>
-    <None Include="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-	<ItemGroup>
-  <Content Include="EmailTemplates\**\*.html">
-    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-  </Content>
-</ItemGroup>
+    <ItemGroup>
+      <Content Include="EmailTemplates\**\*.html">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.8" />
