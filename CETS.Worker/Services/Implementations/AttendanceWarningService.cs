@@ -20,7 +20,6 @@ namespace CETS.Worker.Services.Implementations
             AppDbContext context,
             IMailService mailService,
             IEmailTemplateBuilder templateBuilder,
-            IMemoryCache cache)
             IMemoryCache cache,
             ILogger<AttendanceWarningService> logger)
         {
@@ -65,7 +64,7 @@ namespace CETS.Worker.Services.Implementations
                 if (totalSessions == 0)
                     continue;
 
-                var maxAbsent = (int)Math.Floor(totalSessions * 0.9);
+                var maxAbsent = (int)Math.Floor(totalSessions * 0.5);
 
                 foreach (var enrollment in group)
                 {
