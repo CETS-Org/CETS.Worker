@@ -1,28 +1,41 @@
-# See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-# This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
-USER $APP_UID
-WORKDIR /app
-
-
-# This stage is used to build the service project
+# ================================
+# Build stage
+# ================================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["CETS.Worker/CETS.Worker.csproj", "CETS.Worker/"]
-RUN dotnet restore "./CETS.Worker/CETS.Worker.csproj"
+
+# Copy Worker project file
+COPY CETS.Worker/CETS.Worker/*.csproj CETS.Worker/CETS.Worker/
+
+# Copy Core project csproj files
+COPY CETS.Core/Application/*.csproj CETS.Core/Application/
+COPY CETS.Core/Domain/*.csproj CETS.Core/Domain/
+COPY CETS.Core/DTOs/*.csproj CETS.Core/DTOs/
+COPY CETS.Core/Infrastructure/*.csproj CETS.Core/Infrastructure/
+COPY CETS.Core/Utils/*.csproj CETS.Core/Utils/
+
+# Restore dependencies
+RUN dotnet restore CETS.Worker/CETS.Worker/CETS.Worker.csproj
+
+# Copy entire solution source
 COPY . .
-WORKDIR "/src/CETS.Worker"
-RUN dotnet build "./CETS.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# This stage is used to publish the service project to be copied to the final stage
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./CETS.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+# Publish
+RUN dotnet publish CETS.Worker/CETS.Worker/CETS.Worker.csproj \
+    -c Release -o /app/publish /p:UseAppHost=false
 
-# This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
-FROM base AS final
+# ================================
+# Runtime stage
+# ================================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
-COPY --from=publish /app/publish .
+
+COPY --from=build /app/publish .
+
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV DOTNET_ENVIRONMENT=Production
+
+# Optional: expose for monitoring (you can delete if unused)
+EXPOSE 8082
+
 ENTRYPOINT ["dotnet", "CETS.Worker.dll"]
