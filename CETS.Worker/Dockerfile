@@ -27,15 +27,11 @@ RUN dotnet publish CETS.Worker/CETS.Worker/CETS.Worker.csproj \
 # ================================
 # Runtime stage
 # ================================
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+FROM mcr.microsoft.com/dotnet/runtime:8.0 AS final
 WORKDIR /app
 
 COPY --from=build /app/publish .
 
-ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_ENVIRONMENT=Production
-
-# Optional: expose for monitoring (you can delete if unused)
-EXPOSE 8082
 
 ENTRYPOINT ["dotnet", "CETS.Worker.dll"]
