@@ -1,0 +1,52 @@
+name: Deploy Worker
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout THIS repository (CETS.Worker) into a subfolder
+    - name: Checkout Worker Repo
+      uses: actions/checkout@v3
+      with:
+        path: CETS.Worker
+
+    # 2. Checkout the Shared Core Library
+    - name: Checkout Core Repo
+      run: git clone https://github.com/${{ secrets.CORE_REPO }} CETS.Core
+
+    # 3. Logins
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Docker Login to ACR
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ secrets.ACR_LOGIN_SERVER }}
+        username: ${{ secrets.ACR_USERNAME }}
+        password: ${{ secrets.ACR_PASSWORD }}
+
+    # 4. Build Worker
+    - name: Build Worker Image
+      run: |
+        docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/cets-worker:latest \
+          -f CETS.Worker/CETS.Worker/Dockerfile .
+
+    # 5. Push Worker
+    - name: Push Worker Image
+      run: |
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/cets-worker:latest
+
+    # 6. Deploy to Azure
+    - name: Deploy Worker
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: cets-worker
+        images: ${{ secrets.ACR_LOGIN_SERVER }}/cets-worker:latest
