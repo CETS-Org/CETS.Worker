@@ -143,6 +143,11 @@ namespace CETS.Worker
                 .LogTo(Console.WriteLine, LogLevel.Information));
 
             var host = builder.Build();
+            
+            Console.WriteLine("--------------------------------------------------");
+            Console.WriteLine($"[SYSTEM READY] All services registered. Starting host at {DateTime.Now}");
+            Console.WriteLine("--------------------------------------------------");
+            
             host.Run();
         }
     }
