@@ -24,6 +24,8 @@ using Infrastructure.Implementations.Common.Email;
 using Infrastructure.Implementations.Common.Email.EmailTemplates;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using System;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
@@ -34,39 +36,38 @@ namespace CETS.Worker
     {
         public static void Main(string[] args)
         {
-
-            Console.WriteLine("--------------------------------------------------");
-            Console.WriteLine($"[SYSTEM START] Application is booting at {DateTime.Now}");
-            Console.WriteLine("--------------------------------------------------");
+            // Write to stdout/stderr which Azure Log Stream captures
+            Console.Out.WriteLine("--------------------------------------------------");
+            Console.Out.WriteLine($"[SYSTEM START] Application is booting at {DateTime.Now}");
+            Console.Out.WriteLine("--------------------------------------------------");
+            Console.Out.Flush();
+            
             var builder = Host.CreateApplicationBuilder(args);
 
+            // Configure logging for Azure Log Stream - use SimpleConsoleFormatter for better visibility
             builder.Logging.ClearProviders();
-            builder.Logging.AddConsole(); // Allows "File System" logs in Azure
+            builder.Logging.AddSimpleConsole(options =>
+            {
+                options.IncludeScopes = false;
+                options.TimestampFormat = "yyyy-MM-dd HH:mm:ss ";
+                options.SingleLine = false;
+            });
             builder.Logging.AddDebug();
+            builder.Logging.SetMinimumLevel(LogLevel.Information);
+            
             // Register Background Services / Workers
             builder.Services.AddHostedService<Worker>();
             builder.Services.AddHostedService<AcademicRequestExpiryWorker>();
-            Console.WriteLine("📆 Academic Request Expiry Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<PaymentReminderWorker>();
-            Console.WriteLine("📅 Payment Reminder Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<DropoutProcessingWorker>();
-            Console.WriteLine("🎓 Dropout Processing Worker scheduled at 00:00 AM (midnight) daily");
             
             // Suspension Workers
             builder.Services.AddHostedService<ApplySuspensionWorker>();
-            Console.WriteLine("🔄 Apply Suspension Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<EndSuspensionWorker>();
-            Console.WriteLine("⏸️ End Suspension Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<ReturnReminderWorker>();
-            Console.WriteLine("🔔 Return Reminder Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<AutoDropoutWorker>();
-            Console.WriteLine("⚠️ Auto Dropout Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<CourseStartReminderWorker>();
-            Console.WriteLine("📢 Course Start Reminder Worker scheduled ");
           //  builder.Services.AddHostedService<RoomStatusUpdaterWorker>();
-         //   Console.WriteLine("🏢 Room Status & IsStudy Updater Worker scheduled (runs every 2 mins)");
-
-            Console.WriteLine("🎓 Dropout Processing Worker scheduled at 9:00 AM daily");
             builder.Services.AddMemoryCache();
 
             // Register Application Services
@@ -144,9 +145,21 @@ namespace CETS.Worker
 
             var host = builder.Build();
             
-            Console.WriteLine("--------------------------------------------------");
-            Console.WriteLine($"[SYSTEM READY] All services registered. Starting host at {DateTime.Now}");
-            Console.WriteLine("--------------------------------------------------");
+            // Get logger from built host
+            var finalLogger = host.Services.GetRequiredService<ILogger<Program>>();
+            
+            finalLogger.LogInformation("--------------------------------------------------");
+            finalLogger.LogInformation("[SYSTEM READY] All services registered. Starting host at {Time}", DateTime.Now);
+            finalLogger.LogInformation("📆 Academic Request Expiry Worker scheduled at 00:00 AM (midnight) daily");
+            finalLogger.LogInformation("📅 Payment Reminder Worker scheduled at 00:00 AM (midnight) daily");
+            finalLogger.LogInformation("🎓 Dropout Processing Worker scheduled at 00:00 AM (midnight) daily");
+            finalLogger.LogInformation("🔄 Apply Suspension Worker scheduled at 00:00 AM (midnight) daily");
+            finalLogger.LogInformation("⏸️ End Suspension Worker scheduled at 00:00 AM (midnight) daily");
+            finalLogger.LogInformation("🔔 Return Reminder Worker scheduled at 00:00 AM (midnight) daily");
+            finalLogger.LogInformation("⚠️ Auto Dropout Worker scheduled at 00:00 AM (midnight) daily");
+            finalLogger.LogInformation("📢 Course Start Reminder Worker scheduled");
+            finalLogger.LogInformation("🎓 Dropout Processing Worker scheduled at 9:00 AM daily");
+            finalLogger.LogInformation("--------------------------------------------------");
             
             host.Run();
         }
