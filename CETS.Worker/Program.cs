@@ -148,6 +148,21 @@ namespace CETS.Worker
             // Get logger from built host
             var finalLogger = host.Services.GetRequiredService<ILogger<Program>>();
             
+            // Write to Console.Out first for immediate visibility
+            Console.Out.WriteLine("--------------------------------------------------");
+            Console.Out.WriteLine($"[SYSTEM READY] All services registered. Starting host at {DateTime.Now}");
+            Console.Out.WriteLine("📆 Academic Request Expiry Worker scheduled at 00:00 AM (midnight) daily");
+            Console.Out.WriteLine("📅 Payment Reminder Worker scheduled at 00:00 AM (midnight) daily");
+            Console.Out.WriteLine("🎓 Dropout Processing Worker scheduled at 00:00 AM (midnight) daily");
+            Console.Out.WriteLine("🔄 Apply Suspension Worker scheduled at 00:00 AM (midnight) daily");
+            Console.Out.WriteLine("⏸️ End Suspension Worker scheduled at 00:00 AM (midnight) daily");
+            Console.Out.WriteLine("🔔 Return Reminder Worker scheduled at 00:00 AM (midnight) daily");
+            Console.Out.WriteLine("⚠️ Auto Dropout Worker scheduled at 00:00 AM (midnight) daily");
+            Console.Out.WriteLine("📢 Course Start Reminder Worker scheduled");
+            Console.Out.WriteLine("🎓 Dropout Processing Worker scheduled at 9:00 AM daily");
+            Console.Out.WriteLine("--------------------------------------------------");
+            Console.Out.Flush();
+            
             finalLogger.LogInformation("--------------------------------------------------");
             finalLogger.LogInformation("[SYSTEM READY] All services registered. Starting host at {Time}", DateTime.Now);
             finalLogger.LogInformation("📆 Academic Request Expiry Worker scheduled at 00:00 AM (midnight) daily");
