@@ -36,6 +36,9 @@ namespace CETS.Worker
         {
             var builder = Host.CreateApplicationBuilder(args);
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole(); // Allows "File System" logs in Azure
+            builder.Logging.AddDebug();
             // Register Background Services / Workers
             builder.Services.AddHostedService<Worker>();
             builder.Services.AddHostedService<AcademicRequestExpiryWorker>();
