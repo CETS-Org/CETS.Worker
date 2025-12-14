@@ -26,6 +26,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using System;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 
 namespace CETS.Worker
 {
@@ -53,7 +54,11 @@ namespace CETS.Worker
             Console.WriteLine("🔔 Return Reminder Worker scheduled at 00:00 AM (midnight) daily");
             builder.Services.AddHostedService<AutoDropoutWorker>();
             Console.WriteLine("⚠️ Auto Dropout Worker scheduled at 00:00 AM (midnight) daily");
-            
+            builder.Services.AddHostedService<CourseStartReminderWorker>();
+            Console.WriteLine("📢 Course Start Reminder Worker scheduled ");
+          //  builder.Services.AddHostedService<RoomStatusUpdaterWorker>();
+         //   Console.WriteLine("🏢 Room Status & IsStudy Updater Worker scheduled (runs every 2 mins)");
+
             Console.WriteLine("🎓 Dropout Processing Worker scheduled at 9:00 AM daily");
             builder.Services.AddMemoryCache();
 
@@ -67,8 +72,9 @@ namespace CETS.Worker
             builder.Services.AddScoped<ICurrentUserService, WorkerCurrentUserService>();
             builder.Services.AddScoped<IAttendanceWarningService, AttendanceWarningService>();
             builder.Services.AddHostedService<AttendanceWarningWorker>();
+            builder.Services.AddScoped<ICourseProcessingService, CourseProcessingService>();
 
-            
+
             // Register Email Services
             builder.Services.AddScoped<IMailService, MailService>();
             builder.Services.AddScoped<IEmailTemplateBuilder, EmailTemplateBuilder>();
@@ -117,6 +123,7 @@ namespace CETS.Worker
             builder.Services.AddScoped<ICORE_LookUpRepository, CORE_LookUpRepository>();
             builder.Services.AddScoped<IIDN_AccountRepository, IDN_AccountRepository>();
             builder.Services.AddScoped<IIDN_StudentRepository, IDN_StudentRepository>();
+            
 
             // Register AutoMapper
             builder.Services.AddAutoMapper(typeof(Application.Mappers.CORE.CORE_LookUpProfile));

@@ -18,7 +18,7 @@ namespace CETS.Worker.Workers
         private readonly IConfiguration _configuration; // Thêm Configuration để đọc setting
 
         // Cấu hình mặc định nếu không tìm thấy trong appsettings
-        private const int DefaultRunHour = 8; // Mặc định chạy lúc 8:00 AM
+        private const int DefaultRunHour = 5; // Mặc định chạy lúc 8:00 AM
         private const int DefaultRunMinute = 0;
         private const int DaysBeforeStart = 7;
 
