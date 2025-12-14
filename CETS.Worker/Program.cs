@@ -34,6 +34,10 @@ namespace CETS.Worker
     {
         public static void Main(string[] args)
         {
+
+            Console.WriteLine("--------------------------------------------------");
+            Console.WriteLine($"[SYSTEM START] Application is booting at {DateTime.Now}");
+            Console.WriteLine("--------------------------------------------------");
             var builder = Host.CreateApplicationBuilder(args);
 
             builder.Logging.ClearProviders();
